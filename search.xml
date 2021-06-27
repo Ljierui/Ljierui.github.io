@@ -25,7 +25,7 @@
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">语句：  	</span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27;</span></span><br></pre></td></tr></table></figure>
 
 <center>
-<img src="/MySQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/img/1.png" widith="50%">图一
+<img src="/MySQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/1.png" widith="50%">图一
 </center> 
 
 <p>然后使用 and 1=1 , 1=2 判断注入点，查看页面回显是否正常。<br>注意要·使用注释符把后面的语句给注释掉，如果不注释掉后面的语句，则我们无法知道我们输入SQL语句是否正常执行。   </p>

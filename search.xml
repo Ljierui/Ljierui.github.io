@@ -30,7 +30,7 @@
 <img src="https://raw.githubusercontent.com/Ljierui/Ljierui.github.io/main/MySQL-injection/1.PNG" widith="50%">
 </center>  
 
-<p>然后使用 and 1=1 , 1=2 判断注入点，查看页面回显是否正常。<br>注意要·使用注释符把后面的语句给注释掉，如果不注释掉后面的语句，则我们无法知道我们输入SQL语句是否正常执行。   </p>
+<p>然后使用 and 1=1 , 1=2 判断注入点，查看页面回显是否正常。<br>注意要使用注释符把后面的语句给注释掉，如果不注释掉后面的语句，则我们无法知道我们输入SQL语句是否正常执行。   </p>
 <pre><code>常见的注释符号：  
 --   
 --+   

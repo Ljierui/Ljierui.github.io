@@ -20,10 +20,8 @@
 <h2 id="3、常见的注入利用方式"><a href="#3、常见的注入利用方式" class="headerlink" title="3、常见的注入利用方式"></a>3、常见的注入利用方式</h2><ul>
 <li>测试环境：SQlilabs靶场 </li>
 </ul>
-<h3 id="一-、判断注入"><a href="#一-、判断注入" class="headerlink" title="(一)、判断注入"></a>(一)、判断注入</h3><p>首先判断注入点是否存在，当发现一个URL为：<span class="exturl" data-url="aHR0cDovL3h4eC5jb20vP2lkPTE=">http://xxx.com/?id=1<i class="fa fa-external-link-alt"></i></span><br>则可以改变id的值，使用(+、-、’、”、’)、”)、and 1=1 、or 1=1 )这些字符来观察页面是否会随着值的变化而改变。<br>后端处理SQL查询的语句一般为:  </p>
-<pre><code><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> xxx <span class="keyword">from</span> xxx <span class="keyword">where</span> id <span class="operator">=</span> <span class="string">&#x27;1&#x27;</span>；</span><br></pre></td></tr></table></figure>
-</code></pre>
-<p>由图一可以看到页面报错了，由与加入了单引号’ ，SQL解析了这个单引号，但发现没有第二个单引号来与它闭合，所有就会抛出这个错误。  </p>
+<h3 id="一-、判断注入"><a href="#一-、判断注入" class="headerlink" title="(一)、判断注入"></a>(一)、判断注入</h3><p>首先判断注入点是否存在，当发现一个URL为：<span class="exturl" data-url="aHR0cDovL3h4eC5jb20vP2lkPTE=">http://xxx.com/?id=1<i class="fa fa-external-link-alt"></i></span><br>则可以改变id的值，使用(+、-、’、”、’)、”)、and 1=1 、or 1=1 )这些字符来观察页面是否会随着值的变化而改变。<br>后端处理SQL查询的语句一般为:<br>    <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> xxx <span class="keyword">from</span> xxx <span class="keyword">where</span> id <span class="operator">=</span> <span class="string">&#x27;1&#x27;</span>；</span><br></pre></td></tr></table></figure></p>
+<p>由图一可以看到页面报错了，由与加入了单引号’ ，SQL解析了这个单引号，但发现没有第二个单引号来与它闭合，所有就会抛出这个错误。</p>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">语句：  	</span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27;</span></span><br></pre></td></tr></table></figure>
 
 <center>

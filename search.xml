@@ -24,8 +24,21 @@
 <pre><code><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> xxx <span class="keyword">from</span> xxx <span class="keyword">where</span> id <span class="operator">=</span> <span class="string">&#x27;1&#x27;</span>；</span><br></pre></td></tr></table></figure>
 </code></pre>
 <p>由图一可以看到页面报错了，由与加入了单引号’ ，SQL解析了这个单引号，但发现没有第二个单引号来与它闭合，所有就会抛出这个错误。  </p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">	语句：  	</span><br><span class="line">	http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27;</span></span><br><span class="line"><span class="string">```  </span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&lt;center&gt;</span></span><br><span class="line"><span class="string">&lt;img src=&quot;../img/1.png&quot; widith=&quot;50%&quot; /&gt;图三</span></span><br><span class="line"><span class="string">&lt;/center&gt; </span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">然后使用 and 1=1 , 1=2 判断注入点，查看页面回显是否正常。  </span></span><br><span class="line"><span class="string">注意要·使用注释符把后面的语句给注释掉，如果不注释掉后面的语句，则我们无法知道我们输入SQL语句是否正常执行。   </span></span><br><span class="line"><span class="string">	</span></span><br><span class="line"><span class="string">	常见的注释符号：  </span></span><br><span class="line"><span class="string">	--   </span></span><br><span class="line"><span class="string">	--+   </span></span><br><span class="line"><span class="string">	#   </span></span><br><span class="line"><span class="string">	%23   </span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">	```sql</span></span><br><span class="line"><span class="string">	语句：</span></span><br><span class="line"><span class="string">	http://192.168.199.129:86/Less-1/?id=1&#x27;</span> <span class="keyword">and</span> <span class="number">1</span><span class="operator">=</span><span class="number">1</span> <span class="comment">--+  </span></span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">语句：  	</span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27;</span></span><br></pre></td></tr></table></figure>
 
+<center>
+<img src="/MySQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/img/1.png" widith="50%">图三
+</center> 
+
+<p>然后使用 and 1=1 , 1=2 判断注入点，查看页面回显是否正常。<br>注意要·使用注释符把后面的语句给注释掉，如果不注释掉后面的语句，则我们无法知道我们输入SQL语句是否正常执行。   </p>
+<pre><code>常见的注释符号：  
+--   
+--+   
+#   
+%23   
+
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">语句：</span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27; and 1=1 --+  </span></span><br></pre></td></tr></table></figure>
+</code></pre>
 <p><img src="/MySQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/2.png" alt="图一"></p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">语句:  </span><br><span class="line">http://192.168.199.129:86/Less-1/?id=1&#x27; and 1=2 --+</span><br></pre></td></tr></table></figure>
 <center>

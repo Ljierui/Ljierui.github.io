@@ -21,28 +21,50 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":true,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":5,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Ljierui Blog">
-<meta property="og:url" content="http://example.com/index.html">
+  <meta name="description" content="1、文件包含原理文件包含就是它会把它包含的东西当成PHP去执行    当WEB对一个PHP文件进行包含时未对包含的文件来源做限制或验证，则可能产生文件包含漏洞。  文件包含的两种方式：本地文件包含、远程文件包含 函数:     include     require     include_once     require_once  2、漏洞探测(一)、漏洞探测1、观察URL链接是否包括以下类似">
+<meta property="og:type" content="article">
+<meta property="og:title" content="php_include">
+<meta property="og:url" content="http://example.com/php-include.html">
 <meta property="og:site_name" content="Ljierui Blog">
+<meta property="og:description" content="1、文件包含原理文件包含就是它会把它包含的东西当成PHP去执行    当WEB对一个PHP文件进行包含时未对包含的文件来源做限制或验证，则可能产生文件包含漏洞。  文件包含的两种方式：本地文件包含、远程文件包含 函数:     include     require     include_once     require_once  2、漏洞探测(一)、漏洞探测1、观察URL链接是否包括以下类似">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/php-include/1.png">
+<meta property="og:image" content="http://example.com/php-include/2.png">
+<meta property="og:image" content="http://example.com/php-include/3.png">
+<meta property="og:image" content="http://example.com/php-include/4.png">
+<meta property="og:image" content="http://example.com/php-include/8.png">
+<meta property="og:image" content="http://example.com/php-include/9.png">
+<meta property="og:image" content="http://example.com/php-include/10.png">
+<meta property="og:image" content="http://example.com/php-include/11.png">
+<meta property="og:image" content="http://example.com/php-include/12.png">
+<meta property="og:image" content="http://example.com/php-include/13.png">
+<meta property="og:image" content="http://example.com/php-include/16.png">
+<meta property="og:image" content="http://example.com/php-include/17.png">
+<meta property="og:image" content="http://example.com/php-include/18.png">
+<meta property="og:image" content="http://example.com/php-include/19.png">
+<meta property="og:image" content="http://example.com/php-include/20.png">
+<meta property="article:published_time" content="2021-07-24T07:46:41.000Z">
+<meta property="article:modified_time" content="2021-07-31T09:14:06.653Z">
 <meta property="article:author" content="Ljierui">
+<meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="文件包含">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/php-include/1.png">
 
-<link rel="canonical" href="http://example.com/">
+<link rel="canonical" href="http://example.com/php-include.html">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : true,
-    isPost : false,
+    isHome : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>Ljierui Blog</title>
+  <title>php_include | Ljierui Blog</title>
   
 
 
@@ -157,9 +179,10 @@
         <div class="content-wrap">
           
 
-          <div class="content index posts-expand">
+          <div class="content post posts-expand">
             
-      
+
+    
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
@@ -175,10 +198,9 @@
       <meta itemprop="name" content="Ljierui Blog">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/php-include.html" class="post-title-link" itemprop="url">php_include</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          php_include
+        </h1>
 
         <div class="post-meta">
             <span class="post-meta-item">
@@ -206,7 +228,14 @@
                 </span>
             </span>
 
-          <br>
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
             <span class="post-meta-item" title="本文字数">
               <span class="post-meta-item-icon">
                 <i class="far fa-file-word"></i>
@@ -231,7 +260,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="1、文件包含原理"><a href="#1、文件包含原理" class="headerlink" title="1、文件包含原理"></a>1、文件包含原理</h2><pre><code>文件包含就是它会把它包含的东西当成PHP去执行   
+        <h2 id="1、文件包含原理"><a href="#1、文件包含原理" class="headerlink" title="1、文件包含原理"></a>1、文件包含原理</h2><pre><code>文件包含就是它会把它包含的东西当成PHP去执行   
 当WEB对一个PHP文件进行包含时未对包含的文件来源做限制或验证，则可能产生文件包含漏洞。
 
 文件包含的两种方式：本地文件包含、远程文件包含
@@ -378,121 +407,51 @@ C:\Windows\System32\inetsrv\config\applicationHost.config
 <p>2、“%00”，即null空字符（/etc/passwd%00）,在php语言格式里，当遇到%00的时候，后面不管有无其他东西，都不看了，只看%00前面的内容</p>
 <p>3、“#”，绕过文件扩展名过滤</p>
 
-      
     </div>
 
     
     
     
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/MySQL-injection.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/touxiang.png">
-      <meta itemprop="name" content="Ljierui">
-      <meta itemprop="description" content>
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Ljierui Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/MySQL-injection.html" class="post-title-link" itemprop="url">MySQL_injection</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-06-27 16:22:50 / 修改时间：22:43:11" itemprop="dateCreated datePublished" datetime="2021-06-27T16:22:50+08:00">2021-06-27</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/web%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">web安全</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>8.2k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>7 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="1、SQL注入原理"><a href="#1、SQL注入原理" class="headerlink" title="1、SQL注入原理"></a>1、SQL注入原理</h2><pre><code>当服务器把用户输入的字符串当作SQL语句去执行时，就会产生注入。
-</code></pre>
-<h2 id="2、注入的类型"><a href="#2、注入的类型" class="headerlink" title="2、注入的类型"></a>2、注入的类型</h2><p>常见的注入分为7类:  </p>
-<ul>
-<li>联合注入  </li>
-<li>盲注  </li>
-<li>报错注入  </li>
-<li>延时注入</li>
-<li>二次注入</li>
-<li>堆叠注入</li>
-<li>宽字节注入</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/MySQL-injection.html#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
         
-      
-    </div>
 
-    
-    
-    
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Ljierui
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://example.com/php-include.html" title="php_include">http://example.com/php-include.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC96aC1jbg=="><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
+          <div class="post-tags">
+              <a href="/tags/WEB%E5%AE%89%E5%85%A8/" rel="tag"># WEB安全</a>
+              <a href="/tags/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/" rel="tag"># 文件包含</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/MySQL-injection.html" rel="prev" title="MySQL_injection">
+      <i class="fa fa-chevron-left"></i> MySQL_injection
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
       </footer>
+    
   </article>
   
   
-  
-
-
   
 
 
@@ -545,6 +504,7 @@ C:\Windows\System32\inetsrv\config\applicationHost.config
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1%E3%80%81%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">1、文件包含原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2%E3%80%81%E6%BC%8F%E6%B4%9E%E6%8E%A2%E6%B5%8B"><span class="nav-number">2.</span> <span class="nav-text">2、漏洞探测</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80-%E3%80%81%E6%BC%8F%E6%B4%9E%E6%8E%A2%E6%B5%8B"><span class="nav-number">2.1.</span> <span class="nav-text">(一)、漏洞探测</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C-%E3%80%81%E5%B0%9D%E8%AF%95%E5%8C%85%E5%90%AB%E5%85%B6%E4%BB%96%E6%96%87%E4%BB%B6%EF%BC%8C%E6%B5%8B%E8%AF%95%E6%98%AF%E5%90%A6%E8%83%BD%E5%8C%85%E5%90%AB-%E5%A6%82%EF%BC%9Aphpinfo%E7%AD%89"><span class="nav-number">2.2.</span> <span class="nav-text">(二)、尝试包含其他文件，测试是否能包含(如：phpinfo等)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3%E3%80%81%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">3、漏洞利用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80-%E3%80%81%E9%80%9A%E8%BF%87%E4%B8%8A%E4%BC%A0%E6%96%B9%E5%BC%8Fgetshell"><span class="nav-number">3.1.</span> <span class="nav-text">(一)、通过上传方式getshell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C-%E3%80%81%E8%BF%9C%E7%A8%8B%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="nav-number">3.2.</span> <span class="nav-text">(二)、远程文件包含</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89-%E3%80%81%E9%80%9A%E8%BF%87PHP%E4%BC%AA%E5%8D%8F%E8%AE%AE%E8%AF%BB%E5%8F%96%E6%96%87%E4%BB%B6%E5%92%8C%E5%86%99shell"><span class="nav-number">3.3.</span> <span class="nav-text">(三)、通过PHP伪协议读取文件和写shell</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E5%88%A9%E7%94%A8file%E8%AF%BB%E5%8F%96%E6%96%87%E4%BB%B6"><span class="nav-number">3.3.1.</span> <span class="nav-text">1、利用file读取文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E9%80%9A%E8%BF%87php-input%E5%86%99%E5%85%A5%E4%B8%80%E5%8F%A5%E8%AF%9D"><span class="nav-number">3.3.2.</span> <span class="nav-text">2、通过php:&#x2F;&#x2F;input写入一句话</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B-%E3%80%81%E9%80%9A%E8%BF%87%E6%9C%AC%E5%9C%B0%E5%8C%85%E5%90%AB%E6%97%A5%E5%BF%97getshell"><span class="nav-number">3.4.</span> <span class="nav-text">(四)、通过本地包含日志getshell</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E6%9F%A5%E7%9C%8B%E6%9C%AC%E5%9C%B0APCHE%E6%97%A5%E5%BF%97"><span class="nav-number">3.4.1.</span> <span class="nav-text">1、查看本地APCHE日志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E5%86%99%E5%85%A5%E4%B8%80%E5%8F%A5%E8%AF%9Dphpinfo"><span class="nav-number">3.4.2.</span> <span class="nav-text">2、写入一句话phpinfo</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E9%80%9A%E8%BF%87burp%E6%8A%93%E5%8C%85%E5%86%99%E5%85%A5%EF%BC%8C%E4%B8%8D%E7%84%B6%E4%BC%9A%E6%9C%89URL%E7%BC%96%E7%A0%81"><span class="nav-number">3.4.3.</span> <span class="nav-text">3、通过burp抓包写入，不然会有URL编码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4%E3%80%81%E8%AE%BF%E9%97%AE%E5%8C%85%E5%90%AB%E7%9A%84%E6%97%A5%E5%BF%97"><span class="nav-number">3.4.4.</span> <span class="nav-text">4、访问包含的日志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">3.4.5.</span> <span class="nav-text">5、注意事项</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%94-%E3%80%81%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E7%BB%95%E8%BF%87%E6%8A%80%E5%B7%A7"><span class="nav-number">3.5.</span> <span class="nav-text">(五)、文件包含绕过技巧</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 

